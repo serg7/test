@@ -67,11 +67,6 @@ class Search
         {
             foreach ($synonyms as $synonym)
             {
-                if (mb_strtolower($synonym) == 'баз данных')
-                {
-                    echo mb_strtolower($synonym) . ' - ' . mb_strtolower($word);
-                }
-
                 if (mb_strtolower($synonym) == mb_strtolower($word))
                 {
                     $result .= implode('|', $synonyms);
