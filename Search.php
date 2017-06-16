@@ -99,7 +99,7 @@ class Search
                     {
                         $result .= '(' . implode('|', $synonyms) . ')';
                     }
-                    else if (mb_strtolower($word . ' ' . $nextWord) === mb_strtolower($synonym))
+                    else if (mb_strtolower($word . ' ' . $nextWord) === mb_strtolower($synonym))  // check for collocation
                     {
                         $result .= '(' . implode('|', $synonyms) . ')';  // TODO: fix missing '&'
                     }
