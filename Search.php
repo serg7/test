@@ -8,12 +8,25 @@ class Search
     private $dictionary = array();
 
     /**
+     * @var string
+     */
+    private $dict_file = './data.json';
+
+    /**
      * Search constructor.
      */
     function __construct()
     {
-        $json_data = file_get_contents('./data.json');
-        $this->dictionary = json_decode($json_data);
+        $json_data = file_get_contents($this->dict_file);
+
+        if (false === $json_data)
+        {
+            die('File data.json not found');
+        }
+        else
+        {
+            $this->dictionary = json_decode($json_data);
+        }
     }
 
     /**
@@ -25,13 +38,14 @@ class Search
     {
         if (null != $query && $query != '')  // check for null user's input
         {
-            $result = '(';
+            $result = '';
             $words = explode(' ', $query);  // convert query string to array
 
             foreach ($words as $key => $word) // iterate through set of words from user's query
             {
                 if (mb_strlen($word) > 1) // exclude short words with length = 1
                 {
+                    var_dump($word);
                     if (isset($words[$key+1]))
                     {
                         $hasNext = true;
@@ -41,11 +55,24 @@ class Search
                         $hasNext = false;
                     }
 
-                    $result .= $this->compareWord($word, $hasNext);
+                    $nextWord = $words[$key+1]; // check for collocations
+                    $occurrences = $this->searchInDictionary($word, $nextWord);
+                    if (strlen($occurrences) > 1)   // if we find occurrences in dictionary
+                    {
+                        $result .= $occurrences;
+                    }
+                    else
+                    {
+                        $result .= $word;
+                    }
+
+                    if ($hasNext)
+                    {
+                        $result .= ' & ';
+                    }
+
                 }
             }
-
-            $result .= ')';
 
             return $result;
         }
@@ -56,23 +83,26 @@ class Search
 
     /**
      * @param string $word
-     * @param bool $hasNext
+     * @param bool $nextWord
      * @return string $result
      */
-    function compareWord($word, $hasNext)
+    public function searchInDictionary($word, $nextWord)
     {
         $result = '';
 
-        foreach ($this->dictionary as $key => $synonyms)
+        if (is_array($this->dictionary))
         {
-            foreach ($synonyms as $synonym)
+            foreach ($this->dictionary as $key => $synonyms)
             {
-                if (mb_strtolower($synonym) == mb_strtolower($word))
+                foreach ($synonyms as $synonym)
                 {
-                    $result .= implode('|', $synonyms);
-                    if ($hasNext)
+                    if ( mb_strtolower($synonym) === mb_strtolower($word))
                     {
-                        $result .= ') & (';
+                        $result .= '(' . implode('|', $synonyms) . ')';
+                    }
+                    else if (mb_strtolower($word . ' ' . $nextWord) === mb_strtolower($synonym))
+                    {
+                        $result .= '(' . implode('|', $synonyms) . ')';  // TODO: fix missing '&'
                     }
                 }
             }
