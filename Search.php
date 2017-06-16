@@ -95,7 +95,7 @@ class Search
             {
                 foreach ($synonyms as $synonym)
                 {
-                    if ( mb_strtolower($synonym) === mb_strtolower($word))
+                    if ( mb_strtolower($synonym) === mb_strtolower($word))  // check for single word
                     {
                         $result .= '(' . implode('|', $synonyms) . ')';
                     }
