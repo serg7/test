@@ -45,7 +45,6 @@ class Search
             {
                 if (mb_strlen($word) > 1) // exclude short words with length = 1
                 {
-                    var_dump($word);
                     if (isset($words[$key+1]))
                     {
                         $hasNext = true;
